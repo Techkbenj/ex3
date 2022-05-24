@@ -16,14 +16,19 @@ class Queue
     void popFront();
     const int size() const;
 
+    class Iterator;
+
+    Iterator begin();
+    Iterator end();
+
     class EmptyQueue{};
     class InvalidOperation{};
 
     private:
-    T* m_data;
-    int m_size;
-    int m_max_size;
-    static int m_front;
+    T* m_data; //The array that contains the data of the queue
+    int m_size; //The size of the queue
+    int m_max_size; //The max size of the curret queue
+    static int m_front; //The index of the first node in the queue
 
     const int getFront() const; 
     const int getMaxSize() const;
@@ -125,4 +130,71 @@ template <class T>
 const int Queue<T>::getMaxSize() const
 {
     return m_max_size;
+}
+
+template <class T>
+Queue<T>::Iterator Queue<T>::begin() const
+{
+    return Iterator(this, 0);
+}
+
+template <class T>
+Queue<T>::Iterator Queue<T>::end() const
+{
+    return Iterator(this, m_size);
+}
+
+template <class T>
+class Queue<T>::Iterator
+{
+    const Queue<T>* m_queue;
+    int m_index;
+    Iterator(const Queue<T>* queue, int index);
+    friend class Queue<T>;
+
+    public:
+    const int& operator*() const;
+    Iterator& operator++();
+    Iterator operator++(int);
+    bool operator==(const Iterator& it) const;
+    bool operator!=(const Iterator& it) const;
+    Iterator(const Iterator&) = default;
+    Iterator& operator=(const Iterator&) = default;
+};
+
+template<T>
+Queue<T>::Iterator::Iterator(const Queue<T>* queue, int index) :
+    m_queue(queue), m_index(index){}
+
+template<T>
+const int& Queue<T>::Iterator::operator*() const
+{
+    m_queue->m_data[m_index];
+}
+
+template<T>
+Iterator& Queue<T>::Iterator::operator++()
+{
+    ++m_index;
+    return *this;
+}
+
+template<T>
+Iterator Queue<T>::Iterator::operator++(int)
+{
+    Iterator result = *this;
+    ++*this;
+    return result;
+}
+
+template<T>
+bool Queue<T>::Iterator::operator==(const Iterator& it) const
+{
+    return m_index == it.m_index;
+}
+
+template<T>
+bool Queue<T>::Iterator::operator!=(const Iterator& it) const
+{
+    return !(*this == it)
 }
