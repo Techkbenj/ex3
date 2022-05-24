@@ -18,8 +18,8 @@ class Queue
 
     class Iterator;
 
-    Iterator begin();
-    Iterator end();
+    Iterator begin() const;
+    Iterator end()const ;
 
     class EmptyQueue{};
     class InvalidOperation{};
@@ -162,38 +162,38 @@ class Queue<T>::Iterator
     Iterator& operator=(const Iterator&) = default;
 };
 
-template<T>
+template<class T>
 Queue<T>::Iterator::Iterator(const Queue<T>* queue, int index) :
     m_queue(queue), m_index(index){}
 
-template<T>
+template<class T>
 const int& Queue<T>::Iterator::operator*() const
 {
     m_queue->m_data[m_index];
 }
 
-template<T>
-Iterator& Queue<T>::Iterator::operator++()
+template<class T>
+Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 {
     ++m_index;
     return *this;
 }
 
-template<T>
-Iterator Queue<T>::Iterator::operator++(int)
+template<class T>
+Queue<T>::Iterator Queue<T>::Iterator::operator++(int)
 {
     Iterator result = *this;
     ++*this;
     return result;
 }
 
-template<T>
+template<class T>
 bool Queue<T>::Iterator::operator==(const Iterator& it) const
 {
     return m_index == it.m_index;
 }
 
-template<T>
+template<class T>
 bool Queue<T>::Iterator::operator!=(const Iterator& it) const
 {
     return !(*this == it)
