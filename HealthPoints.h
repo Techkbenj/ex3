@@ -18,6 +18,8 @@ public:
     HealthPoints& operator=(const HealthPoints&) = default;
     HealthPoints& operator+=(int hp);
     HealthPoints& operator-=(int hp);
+    HealthPoints operator+(int hp2) const;
+    HealthPoints operator-(int hp2) const;
 
     friend bool operator==(const HealthPoints& hp1, const HealthPoints& hp2);
     friend bool operator<(const HealthPoints& hp1, const HealthPoints& hp2);
@@ -26,10 +28,7 @@ public:
     class InvalidArgument {};
 };
 
-HealthPoints operator+(const HealthPoints& hp1, int hp2);
 HealthPoints operator+(int hp2, const HealthPoints& hp1);
-HealthPoints operator-(const HealthPoints& hp1, int hp2);
-HealthPoints operator-(int hp2, const HealthPoints& hp1);
 bool operator!=(const HealthPoints& hp1, const HealthPoints& hp2);
 bool operator>=(const HealthPoints& hp1, const HealthPoints& hp2);
 bool operator>(const HealthPoints& hp1, const HealthPoints& hp2);
