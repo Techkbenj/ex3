@@ -1,28 +1,57 @@
+#ifndef QUEUE_H
+#define QUEUE_H
 #include <iostream>
 
 const int INITIAL_SIZE = 1;
 
+//===============INTERFACE===============//
 template <class T>
 class Queue
 {
     public:
-    Queue();
-    Queue(const T& queue);
-    ~Queue();
-    Queue& operator=(const Queue& queue);
-
+    /*
+     * Adds a new node to the end of the queue.
+     *
+     * @param node - the node that is added.
+     * @return 
+     *      void
+     */
     void pushBack(const T& node);
+
+    /*
+     * Returns the first node in the queue.
+     *
+     * @return 
+     *      The first node in the queue
+     */
     T& front();
+
+    /*
+     * Releases the first node in the queue.
+     *
+     * @return 
+     *      void
+     */
     void popFront();
+
+    /*
+     * Returns the size of the queue.
+     *
+     * @return 
+     *      The size of the queue
+     */
     const int size() const;
 
+    /*
+     * Iterator of queue.
+     */
     class Iterator;
 
     Iterator begin() const;
     Iterator end()const ;
 
-    class EmptyQueue{};
-    class InvalidOperation{};
+    class EmptyQueue{}; //exceptions
+    class InvalidOperation{}; //exceptions
 
     private:
     T* m_data; //The array that contains the data of the queue
@@ -30,23 +59,57 @@ class Queue
     int m_max_size; //The max size of the curret queue
     static int m_front; //The index of the first node in the queue
 
-    const int getFront() const; 
-    const int getMaxSize() const;
+    Queue(int size = 0); //C'tor of Queue
+    Queue(const T& queue); // Copy c'tor of Queue
+    ~Queue(); //D'tor of Queue
+    Queue& operator=(const Queue& queue); //Assignment operator of Queue
+
+    const int getFront() const; //returns the index of the first node
+    const int getEnd() const; //returns the amount of nodes in data array
+    const int getMaxSize() const; //return the max size
+    T& getData(int index); //returns a node
 
 };
 
+/*
+* Filters a queue using a specific condition.
+*
+* @param queue - The queue to be filtered.
+* @param c - The condition to filter the queue with.  
+* @return 
+*      The filtered queue
+*/
+template<class T, class Condition>
+Queue<T> filter(Queue<T> queue, Condition c);
+
+/*
+* Changed the nodes in the queue using a specific condition.
+*
+* @param queue - The queue to be filtered.
+* @param c - The condition to change the nodes with.  
+* @return 
+*      void
+*/
+template<class T, class Condition>
+void transform(Queue <T> queue, Condition c);
+
+//===============INTERFACE===============//
+
+//=============IMPLEMENTATION=============//
 template <class T>
-Queue<T>::Queue() : m_data(new T[INITIAL_SIZE]), m_size = 0, 
-    m_max_size = INITIAL_SIZE, m_front = 0 {}
-    
+Queue<T>::Queue(int size) : m_data(new T[size >= INITIAL_SIZE ? size : INITIAL_SIZE]), 
+    m_size = size,
+    m_max_size = size >= INITIAL_SIZE ? size : INITIAL_SIZE, 
+    m_front = 0 {}
+
 template <class T>
 Queue<T>::Queue(const T& queue) : m_data(new T[queue.size()]),
     m_size(queue.size()), m_max_size(queue.size(),
     m_front = queue.getFront())
 {
-    for (int i = 0; i < m_size; i++)
+    for (int i = queue.getFront(); i < queue.getEnd(); i++)
     {
-        m_data[i] = queue.m_data[i];
+        m_data[i - queue.getFront()] = queue.m_data[i];
     }
 }
 
@@ -70,43 +133,39 @@ m_size = queue.size();
 m_max_size = queue.size();
 m_front = queue.getFront();
 
-for (int i = 0; i < m_size; i++)
+for (int i = queue.getFront(); i < queue.getEnd(); i++)
     {
-        m_data[i] = queue.m_data[i];
+        m_data[i - queue.getFront()] = queue.m_data[i];
     }
 }
 
 template <class T>
 void Queue<T>::pushBack(const T& node)
 {
-    if (this.size == this.getMaxSize)
+    if (this.getEnd() == this.getMaxSize())
     {
-        T* temp = (new T[(this.size)*2]);
-        for (int i = this.getFront; i < this.size; i++)
+        T* temp = (new T[(this.size())*2]);
+        for (int i = queue.getFront(); i < queue.getEnd(); i++)
         {
-            temp[i - this.getFront] = m_data[i]
+            temp[i - this.getFront()] = m_data[i]
         }
         delete[] m_data;
-        m_max_size = (this.size)*2;
-        m_data = new T(this.getMaxSize);
+        m_max_size = (this.size())*2;
+        m_data = new T(this.getMaxSize());
         for (int i = 0; i < this.size; i++)
         {
             m_data[i] = temp[i]
         }
         delete[] temp;
-        m_data[this.size] = node;
     }
-    else
-    {
-        m_data[this.size] = node;
-        size++;
-    }
+    m_data[this.size()] = node;
+    size++;
 }
 
 template <class T>
 T& Queue<T>::front()
 {
-    return &m_data[this.getFront];
+    return &m_data[this.getFront()];
 }
 
 template <class T>
@@ -117,7 +176,7 @@ void Queue<T>::popFront()
 template <class T>
 const int Queue<T>::size() const
 {
-    return m_size;
+    return m_size - m_front;
 }
 
 template <class T>
@@ -127,9 +186,21 @@ const int Queue<T>::getFront() const
 } 
 
 template <class T>
+const int Queue<T>::getEnd() const
+{
+    return m_size;
+}
+
+template <class T>
 const int Queue<T>::getMaxSize() const
 {
     return m_max_size;
+}
+
+template <class T>
+T& Queue<T>::getData(int index)
+{
+    return &m_data[index];
 }
 
 template <class T>
@@ -198,3 +269,29 @@ bool Queue<T>::Iterator::operator!=(const Iterator& it) const
 {
     return !(*this == it)
 }
+
+template<class T, class Condition>
+Queue<T> filter(Queue<T> queue, Condition c)
+{
+    Queue<T> result = Queue<T>(queue.size());
+    for (int i = queue.getFront(); i < queue.getEnd(); i++)
+    {
+        if (c(queue.getData(i)))
+        {
+            result.pushback(queue.getData(i));
+        }
+    }
+    return &result;
+}
+
+template<class T, class Condition>
+void transform(Queue <T> queue, Condition c)
+{
+    for (int i = queue.getFront(); i < queue.getEnd(); i++)
+    {
+        queue.getData(i) = c(queue.getData(i));
+    }
+}
+//=============IMPLEMENTATION=============//
+
+#endif /* QUEUE_H */
