@@ -9,6 +9,11 @@ template <class T>
 class Queue
 {
     public:
+    Queue(int size = 0); //C'tor of Queue
+    Queue(const Queue& queue); // Copy c'tor of Queue
+    ~Queue(); //D'tor of Queue
+    Queue& operator=(const Queue& queue); //Assignment operator of Queue
+
     /*
      * Adds a new node to the end of the queue.
      *
@@ -50,19 +55,20 @@ class Queue
     Iterator begin() const;
     Iterator end() const;
 
-    class EmptyQueue{}; //exceptions
-    class InvalidOperation{}; //exceptions
+    class EmptyQueue //exceptions
+    {
+        EmptyQueue() = default;
+    };
+    class InvalidOperation //exceptions
+    {
+        InvalidOperation() = default;
+    };
 
     private:
     T* m_data; //The array that contains the data of the queue
     int m_size; //The size of the queue
     int m_max_size; //The max size of the curret queue
-    static int m_front; //The index of the first node in the queue
-
-    Queue(int size = 0); //C'tor of Queue
-    Queue(const Queue& queue); // Copy c'tor of Queue
-    ~Queue(); //D'tor of Queue
-    Queue& operator=(const Queue& queue); //Assignment operator of Queue
+    int m_front; //The index of the first node in the queue
 
     const int getFront() const; //returns the index of the first node
     const int getEnd() const; //returns the amount of nodes in data array
@@ -98,9 +104,9 @@ void transform(Queue <T> queue, Condition c);
 //=============IMPLEMENTATION=============//
 template <class T>
 Queue<T>::Queue(int size) : m_data(new T[size >= INITIAL_SIZE ? size : INITIAL_SIZE]), 
-    m_size = size,
-    m_max_size = size >= INITIAL_SIZE ? size : INITIAL_SIZE, 
-    m_front = 0 {}
+    m_size(size),
+    m_max_size(size >= INITIAL_SIZE ? size : INITIAL_SIZE), 
+    m_front(0) {}
 
 template <class T>
 Queue<T>::Queue(const Queue<T>& queue) : m_data(new T[queue.size()]),
@@ -141,45 +147,45 @@ Queue<T>& Queue<T>:: operator=(const Queue<T>& queue) {
 template <class T>
 void Queue<T>::pushBack(const T& node)
 {
-    if (this.getEnd() == this.getMaxSize())
+    if (this->getEnd() == this->getMaxSize())
     {
-        T* temp = (new T[(this.size())*2]);
-        for (int i = this.getFront(); i < this.getEnd(); i++)
+        T* temp = (new T[(this->size())*2]);
+        for (int i = this->getFront(); i < this->getEnd(); i++)
         {
-            temp[i - this.getFront()] = m_data[i]
+            temp[i - this->getFront()] = m_data[i];
         }
         delete[] m_data;
-        m_max_size = (this.size())*2;
+        m_max_size = (this->size())*2;
         try{
-            m_data = new T[this.getMaxSize()];
+            m_data = new T[this->getMaxSize()];
         } catch (const std::bad_alloc&) {
             delete[] temp;
             throw;
         }
-        for (int i = 0; i < this.size; i++)
+        for (int i = 0; i < this->size(); i++)
         {
-            m_data[i] = temp[i]
+            m_data[i] = temp[i];
         }
         delete[] temp;
     }
-    m_data[this.size()] = node;
-    size++;
+    m_data[this->size()] = node;
+    m_size++;
 }
 
 template <class T>
 T& Queue<T>::front()
 {
-    if (this.size() = 0)
+    if (this->size() == 0)
     {
         throw EmptyQueue();
     }
-    return m_data[this.getFront()];
+    return m_data[this->getFront()];
 }
 
 template <class T>
 void Queue<T>::popFront()
 {
-    if (this.size() = 0)
+    if (this->size() == 0)
     {
         throw EmptyQueue();
     }
@@ -246,9 +252,9 @@ const T& Queue<T>::Iterator::operator*() const
 template<class T>
 typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 {
-    if (m_index++ == m_queue->getEnd())
+    if (m_index++ == m_queue.getEnd())
     {
-        throw InvalidOperation();
+        throw &InvalidOperation();
     }
     ++m_index;
     return *this;
