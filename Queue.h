@@ -60,7 +60,7 @@ class Queue
     static int m_front; //The index of the first node in the queue
 
     Queue(int size = 0); //C'tor of Queue
-    Queue(const T& queue); // Copy c'tor of Queue
+    Queue(const Queue& queue); // Copy c'tor of Queue
     ~Queue(); //D'tor of Queue
     Queue& operator=(const Queue& queue); //Assignment operator of Queue
 
@@ -150,7 +150,12 @@ void Queue<T>::pushBack(const T& node)
         }
         delete[] m_data;
         m_max_size = (this.size())*2;
-        m_data = new T[this.getMaxSize()];
+        try{
+            m_data = new T[this.getMaxSize()];
+        } catch (const std::bad_alloc&) {
+            delete[] temp;
+            throw;
+        }
         for (int i = 0; i < this.size; i++)
         {
             m_data[i] = temp[i]
@@ -164,12 +169,20 @@ void Queue<T>::pushBack(const T& node)
 template <class T>
 T& Queue<T>::front()
 {
+    if (this.size() = 0)
+    {
+        throw EmptyQueue();
+    }
     return m_data[this.getFront()];
 }
 
 template <class T>
 void Queue<T>::popFront()
 {
+    if (this.size() = 0)
+    {
+        throw EmptyQueue();
+    }
     m_front++;
 }
 template <class T>
@@ -233,6 +246,10 @@ const T& Queue<T>::Iterator::operator*() const
 template<class T>
 typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 {
+    if (m_index++ == m_queue->getEnd())
+    {
+        throw InvalidOperation();
+    }
     ++m_index;
     return *this;
 }
@@ -272,12 +289,12 @@ typename Queue<T>::Iterator Queue<T>::end() const
 template<class T, class Condition>
 Queue<T> filter(Queue<T> queue, Condition c)
 {
-    Queue<T> result = Queue<T>(queue.size());
+    T* result = new T[queue.size()];
     for (int i = queue.getFront(); i < queue.getEnd(); i++)
     {
         if (c(queue.getData(i)))
         {
-            result.pushback(queue.getData(i));
+            result.pushBack(queue.getData(i));
         }
     }
     return &result;
