@@ -2,10 +2,10 @@
 // Created by itay on 21/05/2022.
 //
 
-#ifndef HW3_HEALTHPOINTS_H
-#define HW3_HEALTHPOINTS_H
+#ifndef HEALTHPOINTS_H
+#define HEALTHPOINTS_H
 
-#include "iostream"
+#include <iostream>
 
 class HealthPoints{
     int m_currentHealthPoints;
@@ -34,4 +34,4 @@ bool operator>=(const HealthPoints& hp1, const HealthPoints& hp2);
 bool operator>(const HealthPoints& hp1, const HealthPoints& hp2);
 bool operator<=(const HealthPoints& hp1, const HealthPoints& hp2);
 
-#endif //HW3_HEALTHPOINTS_H
+#endif // HEALTHPOINTS_H

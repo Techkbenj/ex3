@@ -101,7 +101,7 @@ bool operator>(const HealthPoints& hp1, const HealthPoints& hp2)
 
 bool operator<=(const HealthPoints& hp1, const HealthPoints& hp2)
 {
-    if (hp2 > hp1)
+    if (hp2 < hp1)
     {
         return false;
     }
