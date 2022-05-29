@@ -64,6 +64,28 @@ class Queue
         InvalidOperation() = default;
     };
 
+    /*
+    * Filters a queue using a specific condition.
+    *
+    * @param queue - The queue to be filtered.
+    * @param c - The condition to filter the queue with.  
+    * @return 
+    *      The filtered queue
+    */
+    template<class Condition>
+    friend Queue filter(Queue queue, Condition c);
+
+    /*
+    * Changed the nodes in the queue using a specific condition.
+    *
+    * @param queue - The queue to be filtered.
+    * @param c - The condition to change the nodes with.  
+    * @return 
+    *      void
+    */
+    template<class Condition>
+    friend void transform(Queue <T> queue, Condition c);
+
     private:
     T* m_data; //The array that contains the data of the queue
     int m_size; //The size of the queue
@@ -73,31 +95,9 @@ class Queue
     const int getFront() const; //returns the index of the first node
     const int getEnd() const; //returns the amount of nodes in data array
     const int getMaxSize() const; //return the max size
-    T& getData(int index); //returns a node
+    T& getData(int index); //returns a reference to a node
 
 };
-
-/*
-* Filters a queue using a specific condition.
-*
-* @param queue - The queue to be filtered.
-* @param c - The condition to filter the queue with.  
-* @return 
-*      The filtered queue
-*/
-template<class T, class Condition>
-Queue<T> filter(Queue<T> queue, Condition c);
-
-/*
-* Changed the nodes in the queue using a specific condition.
-*
-* @param queue - The queue to be filtered.
-* @param c - The condition to change the nodes with.  
-* @return 
-*      void
-*/
-template<class T, class Condition>
-void transform(Queue <T> queue, Condition c);
 
 //===============INTERFACE===============//
 
@@ -110,8 +110,8 @@ Queue<T>::Queue(int size) : m_data(new T[size >= INITIAL_SIZE ? size : INITIAL_S
 
 template <class T>
 Queue<T>::Queue(const Queue<T>& queue) : m_data(new T[queue.size()]),
-    m_size(queue.size()), m_max_size(queue.size(),
-    m_front = queue.getFront())
+    m_size(queue.size()), m_max_size(queue.size()),
+    m_front(queue.getFront())
 {
     for (int i = queue.getFront(); i < queue.getEnd(); i++)
     {
@@ -252,9 +252,9 @@ const T& Queue<T>::Iterator::operator*() const
 template<class T>
 typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 {
-    if (m_index++ == m_queue.getEnd())
+    if (m_index++ >= m_queue->getEnd())
     {
-        throw &InvalidOperation();
+        throw InvalidOperation();
     }
     ++m_index;
     return *this;
@@ -263,6 +263,10 @@ typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 template<class T>
 typename Queue<T>::Iterator Queue<T>::Iterator::operator++(int)
 {
+    if (m_index++ >= m_queue->getEnd())
+    {
+        throw InvalidOperation();
+    }
     Iterator result = *this;
     ++*this;
     return result;
@@ -295,7 +299,9 @@ typename Queue<T>::Iterator Queue<T>::end() const
 template<class T, class Condition>
 Queue<T> filter(Queue<T> queue, Condition c)
 {
-    T* result = new T[queue.size()];
+
+    Queue<T> result = Queue<T>(queue.size());
+    result.m_front = queue.m_front;
     for (int i = queue.getFront(); i < queue.getEnd(); i++)
     {
         if (c(queue.getData(i)))
