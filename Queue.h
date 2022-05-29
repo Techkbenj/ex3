@@ -51,17 +51,17 @@ class Queue
      * Iterator of queue.
      */
     class Iterator;
+    class ConstIterator;
 
-    Iterator begin() const;
-    Iterator end() const;
+    Iterator begin();
+    Iterator end();
+
+    ConstIterator begin() const;
+    ConstIterator end() const;
 
     class EmptyQueue //exceptions
     {
         EmptyQueue() = default;
-    };
-    class InvalidOperation //exceptions
-    {
-        InvalidOperation() = default;
     };
 
     /*
@@ -84,9 +84,9 @@ class Queue
     *      void
     */
     template<class Condition>
-    friend void transform(Queue <T> queue, Condition c);
+    friend void transform(Queue queue, Condition c);
 
-    private:
+    private
     T* m_data; //The array that contains the data of the queue
     int m_size; //The size of the queue
     int m_max_size; //The max size of the curret queue
@@ -221,12 +221,14 @@ T& Queue<T>::getData(int index)
     return m_data[index];
 }
 
+//===============ITERATOR===============//
+
 template <class T>
 class Queue<T>::Iterator
 {
-    const Queue<T>* m_queue;
+    Queue<T>* m_queue;
     int m_index;
-    Iterator(const Queue<T>* queue, int index);
+    Iterator(Queue<T>* queue, int index);
     friend class Queue<T>;
 
     public:
@@ -237,10 +239,15 @@ class Queue<T>::Iterator
     bool operator!=(const Iterator& it) const;
     Iterator(const Iterator&) = default;
     Iterator& operator=(const Iterator&) = default;
+
+    class InvalidOperation //exceptions
+    {
+        InvalidOperation() = default;
+    };
 };
 
 template<class T>
-Queue<T>::Iterator::Iterator(const Queue<T>* queue, int index) :
+Queue<T>::Iterator::Iterator(Queue<T>* queue, int index) :
     m_queue(queue), m_index(index){}
 
 template<class T>
@@ -285,17 +292,102 @@ bool Queue<T>::Iterator::operator!=(const Iterator& it) const
 }
 
 template <class T>
-typename Queue<T>::Iterator Queue<T>::begin() const
+typename Queue<T>::Iterator Queue<T>::begin()
 {
     return Iterator(this, 0);
 }
 
 template <class T>
-typename Queue<T>::Iterator Queue<T>::end() const
+typename Queue<T>::Iterator Queue<T>::end()
 {
     return Iterator(this, m_size);
 }
 
+//===============ITERATOR===============//
+
+//===============CONST_ITERATOR===============//
+
+template <class T>
+class Queue<T>::ConstIterator
+{
+    const Queue<T>* m_queue;
+    int m_index;
+    ConstIterator(const Queue<T>* queue, int index);
+    friend class Queue<T>;
+
+    public:
+    const T& operator*() const;
+    ConstIterator& operator++();
+    ConstIterator operator++(int);
+    bool operator==(const ConstIterator& it) const;
+    bool operator!=(const ConstIterator& it) const;
+    ConstIterator(const ConstIterator&) = default;
+    ConstIterator& operator=(const ConstIterator&) = default;
+
+    class InvalidOperation //exceptions
+    {
+        InvalidOperation() = default;
+    };
+};
+
+template<class T>
+Queue<T>::ConstIterator::ConstIterator(const Queue<T>* queue, int index) :
+    m_queue(queue), m_index(index){}
+
+template<class T>
+const T& Queue<T>::ConstIterator::operator*() const
+{
+    return m_queue->m_data[m_index];
+}
+
+template<class T>
+typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()
+{
+    if (m_index++ >= m_queue->getEnd())
+    {
+        throw InvalidOperation();
+    }
+    ++m_index;
+    return *this;
+}
+
+template<class T>
+typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)
+{
+    if (m_index++ >= m_queue->getEnd())
+    {
+        throw InvalidOperation();
+    }
+    Iterator result = *this;
+    ++*this;
+    return result;
+}
+
+template<class T>
+bool Queue<T>::ConstIterator::operator==(const ConstIterator& it) const
+{
+    return m_index == it.m_index;
+}
+
+template<class T>
+bool Queue<T>::ConstIterator::operator!=(const ConstIterator& it) const
+{
+    return !(*this == it);
+}
+
+template <class T>
+typename Queue<T>::ConstIterator Queue<T>::begin() const
+{
+    return ConstIterator(this, 0);
+}
+
+template <class T>
+typename Queue<T>::ConstIterator Queue<T>::end() const
+{
+    return ConstIterator(this, m_size);
+}
+
+//===============CONST_ITERATOR===============//
 template<class T, class Condition>
 Queue<T> filter(Queue<T> queue, Condition c)
 {
@@ -317,7 +409,7 @@ void transform(Queue <T> queue, Condition c)
 {
     for (int i = queue.getFront(); i < queue.getEnd(); i++)
     {
-        queue.getData(i) = c(queue.getData(i));
+       c(queue.getData(i));
     }
 }
 //=============IMPLEMENTATION=============//
