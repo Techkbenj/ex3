@@ -64,29 +64,7 @@ class Queue
         EmptyQueue() = default;
     };
 
-    /*
-    * Filters a queue using a specific condition.
-    *
-    * @param queue - The queue to be filtered.
-    * @param c - The condition to filter the queue with.  
-    * @return 
-    *      The filtered queue
-    */
-    template<class Condition>
-    friend Queue filter(Queue queue, Condition c);
-
-    /*
-    * Changed the nodes in the queue using a specific condition.
-    *
-    * @param queue - The queue to be filtered.
-    * @param c - The condition to change the nodes with.  
-    * @return 
-    *      void
-    */
-    template<class Condition>
-    friend void transform(Queue queue, Condition c);
-
-    private
+    private:
     T* m_data; //The array that contains the data of the queue
     int m_size; //The size of the queue
     int m_max_size; //The max size of the curret queue
@@ -98,6 +76,28 @@ class Queue
     T& getData(int index); //returns a reference to a node
 
 };
+
+/*
+    * Filters a queue using a specific condition.
+    *
+    * @param queue - The queue to be filtered.
+    * @param c - The condition to filter the queue with.  
+    * @return 
+    *      The filtered queue
+    */
+    template<class T, class Condition>
+    Queue<T> filter(Queue<T> queue, Condition c);
+
+    /*
+    * Changed the nodes in the queue using a specific condition.
+    *
+    * @param queue - The queue to be filtered.
+    * @param c - The condition to change the nodes with.  
+    * @return 
+    *      void
+    */
+    template<class T, class Condition>
+    void transform(Queue<T> queue, Condition c);
 
 //===============INTERFACE===============//
 
@@ -294,13 +294,13 @@ bool Queue<T>::Iterator::operator!=(const Iterator& it) const
 template <class T>
 typename Queue<T>::Iterator Queue<T>::begin()
 {
-    return Iterator(this, 0);
+    return Iterator(this, this->getFront());
 }
 
 template <class T>
 typename Queue<T>::Iterator Queue<T>::end()
 {
-    return Iterator(this, m_size);
+    return Iterator(this, this->getEnd());
 }
 
 //===============ITERATOR===============//
@@ -378,38 +378,45 @@ bool Queue<T>::ConstIterator::operator!=(const ConstIterator& it) const
 template <class T>
 typename Queue<T>::ConstIterator Queue<T>::begin() const
 {
-    return ConstIterator(this, 0);
+    return ConstIterator(this, this->getFront());
 }
 
 template <class T>
 typename Queue<T>::ConstIterator Queue<T>::end() const
 {
-    return ConstIterator(this, m_size);
+    return ConstIterator(this, this->getEnd());
 }
 
 //===============CONST_ITERATOR===============//
 template<class T, class Condition>
 Queue<T> filter(Queue<T> queue, Condition c)
 {
-
+    Queue<T> temp = queue;
     Queue<T> result = Queue<T>(queue.size());
-    result.m_front = queue.m_front;
-    for (int i = queue.getFront(); i < queue.getEnd(); i++)
+    for (int i = 0; i < queue.size(); i++)
     {
-        if (c(queue.getData(i)))
+        if (c(temp.front()))
         {
-            result.pushBack(queue.getData(i));
+            result.pushBack(temp.front());
+            temp.popFront();
         }
     }
-    return &result;
+    return result;
 }
 
 template<class T, class Condition>
-void transform(Queue <T> queue, Condition c)
+void transform(Queue<T> queue, Condition c)
 {
-    for (int i = queue.getFront(); i < queue.getEnd(); i++)
+    Queue<T> temp = queue;
+    for (int i = 0; i < queue.size(); i++)
     {
-       c(queue.getData(i));
+       queue.popFront();
+    }
+    for (int i = 0; i < queue.size(); i++)
+    {
+        c(temp.front());
+       queue.pushBack(temp.front());
+       temp.popFront();
     }
 }
 //=============IMPLEMENTATION=============//
