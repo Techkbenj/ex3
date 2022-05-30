@@ -401,7 +401,7 @@ void transform(Queue<T>& queue, Condition c)
 {
     Queue<T> temp = queue;
     int sizeOfQueue = queue.size();
-    for (int i = 0; i < queue.size(); i++)
+    for (int i = 0; i < sizeOfQueue; i++)
     {
        queue.popFront();
     }
@@ -411,6 +411,7 @@ void transform(Queue<T>& queue, Condition c)
        queue.pushBack(temp.front());
        temp.popFront();
     }
+    
 }
 //=============IMPLEMENTATION=============//
 
