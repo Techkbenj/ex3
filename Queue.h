@@ -97,7 +97,7 @@ class Queue
     *      void
     */
     template<class T, class Condition>
-    void transform(Queue<T> queue, Condition c);
+    void transform(Queue<T>& queue, Condition c);
 
 //===============INTERFACE===============//
 
@@ -397,14 +397,14 @@ Queue<T> filter(Queue<T> queue, Condition c)
 }
 
 template<class T, class Condition>
-void transform(Queue<T> queue, Condition c)
+void transform(Queue<T>& queue, Condition c)
 {
     Queue<T> temp = queue;
+    int sizeOfQueue = queue.size();
     for (int i = 0; i < queue.size(); i++)
     {
        queue.popFront();
     }
-    int sizeOfQueue = queue.size();
     for (int i = 0; i < sizeOfQueue; i++)
     {
        c(temp.front());
