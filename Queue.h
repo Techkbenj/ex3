@@ -104,7 +104,7 @@ class Queue
 //=============IMPLEMENTATION=============//
 template <class T>
 Queue<T>::Queue(int size) : m_data(new T[size >= INITIAL_SIZE ? size : INITIAL_SIZE]), 
-    m_size(size),
+    m_size(0),
     m_max_size(size >= INITIAL_SIZE ? size : INITIAL_SIZE), 
     m_front(0) {}
 
@@ -156,19 +156,11 @@ void Queue<T>::pushBack(const T& node)
         }
         delete[] m_data;
         m_max_size = (this->size())*2;
-        try{
-            m_data = new T[this->getMaxSize()];
-        } catch (const std::bad_alloc&) {
-            delete[] temp;
-            throw;
-        }
-        for (int i = 0; i < this->size(); i++)
-        {
-            m_data[i] = temp[i];
-        }
-        delete[] temp;
+        m_size -= m_front;
+        m_data = temp;
+        m_front = 0;
     }
-    m_data[this->size()] = node;
+    m_data[(this->size()) + this->getFront()] = node;
     m_size++;
 }
 
@@ -253,13 +245,17 @@ Queue<T>::Iterator::Iterator(Queue<T>* queue, int index) :
 template<class T>
 const T& Queue<T>::Iterator::operator*() const
 {
+    if (m_index >= m_queue->getEnd())
+    {
+        throw InvalidOperation();
+    }
     return m_queue->m_data[m_index];
 }
 
 template<class T>
 typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 {
-    if (m_index++ >= m_queue->getEnd())
+    if (m_index >= m_queue->getEnd())
     {
         throw InvalidOperation();
     }
@@ -270,10 +266,6 @@ typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 template<class T>
 typename Queue<T>::Iterator Queue<T>::Iterator::operator++(int)
 {
-    if (m_index++ >= m_queue->getEnd())
-    {
-        throw InvalidOperation();
-    }
     Iterator result = *this;
     ++*this;
     return result;
@@ -337,13 +329,17 @@ Queue<T>::ConstIterator::ConstIterator(const Queue<T>* queue, int index) :
 template<class T>
 const T& Queue<T>::ConstIterator::operator*() const
 {
+    if (m_index >= m_queue->getEnd())
+    {
+        throw InvalidOperation();
+    }
     return m_queue->m_data[m_index];
 }
 
 template<class T>
 typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()
 {
-    if (m_index++ >= m_queue->getEnd())
+    if (m_index >= m_queue->getEnd())
     {
         throw InvalidOperation();
     }
@@ -354,10 +350,6 @@ typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()
 template<class T>
 typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)
 {
-    if (m_index++ >= m_queue->getEnd())
-    {
-        throw InvalidOperation();
-    }
     Iterator result = *this;
     ++*this;
     return result;
@@ -398,8 +390,8 @@ Queue<T> filter(Queue<T> queue, Condition c)
         if (c(temp.front()))
         {
             result.pushBack(temp.front());
-            temp.popFront();
         }
+        temp.popFront();
     }
     return result;
 }
@@ -412,9 +404,10 @@ void transform(Queue<T> queue, Condition c)
     {
        queue.popFront();
     }
-    for (int i = 0; i < queue.size(); i++)
+    int sizeOfQueue = queue.size();
+    for (int i = 0; i < sizeOfQueue; i++)
     {
-        c(temp.front());
+       c(temp.front());
        queue.pushBack(temp.front());
        temp.popFront();
     }
