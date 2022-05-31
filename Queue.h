@@ -238,7 +238,7 @@ class Queue<T>::Iterator
     friend class Queue<T>;
 
     public:
-    const T& operator*() const;
+    T& operator*() const;
     Iterator& operator++();
     Iterator operator++(int);
     bool operator==(const Iterator& it) const;
@@ -257,7 +257,7 @@ Queue<T>::Iterator::Iterator(Queue<T>* queue, int index) :
     m_queue(queue), m_index(index){}
 
 template<class T>
-const T& Queue<T>::Iterator::operator*() const
+T& Queue<T>::Iterator::operator*() const
 {
     if (m_index >= m_queue->getEnd())
     {
