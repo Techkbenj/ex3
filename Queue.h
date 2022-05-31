@@ -37,6 +37,9 @@ class Queue
      * @return 
      *      void
      */
+
+    T& front() const;
+
     void popFront();
 
     /*
@@ -142,6 +145,7 @@ Queue<T>& Queue<T>:: operator=(const Queue<T>& queue) {
     {
         m_data[i - queue.getFront()] = queue.m_data[i];
     }
+    return *this;
 }
 
 template <class T>
@@ -169,7 +173,17 @@ T& Queue<T>::front()
 {
     if (this->size() == 0)
     {
-        throw EmptyQueue();
+        throw Queue<T>::EmptyQueue();
+    }
+    return m_data[this->getFront()];
+}
+
+template <class T>
+T& Queue<T>::front() const
+{
+    if (this->size() == 0)
+    {
+        throw Queue<T>::EmptyQueue();
     }
     return m_data[this->getFront()];
 }
@@ -179,7 +193,7 @@ void Queue<T>::popFront()
 {
     if (this->size() == 0)
     {
-        throw EmptyQueue();
+        throw Queue<T>::EmptyQueue();
     }
     m_front++;
 }
@@ -247,7 +261,7 @@ const T& Queue<T>::Iterator::operator*() const
 {
     if (m_index >= m_queue->getEnd())
     {
-        throw InvalidOperation();
+        throw Queue<T>::Iterator::InvalidOperation();
     }
     return m_queue->m_data[m_index];
 }
@@ -257,7 +271,7 @@ typename Queue<T>::Iterator& Queue<T>::Iterator::operator++()
 {
     if (m_index >= m_queue->getEnd())
     {
-        throw InvalidOperation();
+        throw Queue<T>::Iterator::InvalidOperation();
     }
     ++m_index;
     return *this;
@@ -331,7 +345,7 @@ const T& Queue<T>::ConstIterator::operator*() const
 {
     if (m_index >= m_queue->getEnd())
     {
-        throw InvalidOperation();
+        throw Queue<T>::ConstIterator::InvalidOperation();
     }
     return m_queue->m_data[m_index];
 }
@@ -341,7 +355,7 @@ typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()
 {
     if (m_index >= m_queue->getEnd())
     {
-        throw InvalidOperation();
+        throw Queue<T>::ConstIterator::InvalidOperation();
     }
     ++m_index;
     return *this;
@@ -350,7 +364,7 @@ typename Queue<T>::ConstIterator& Queue<T>::ConstIterator::operator++()
 template<class T>
 typename Queue<T>::ConstIterator Queue<T>::ConstIterator::operator++(int)
 {
-    Iterator result = *this;
+    ConstIterator result = *this;
     ++*this;
     return result;
 }
